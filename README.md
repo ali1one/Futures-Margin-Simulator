@@ -24,9 +24,6 @@ The app is available in English and French (`/?lang=fr`).
 - With a **negative correlation** it is the opposite. With zero correlation there is no
   systematic difference. The seller's side is the exact mirror image.
 
-This is the explanation behind the CFA question where the correct answer is
-"the price of the underlying asset is strongly positively correlated with interest rates".
-
 ## Run it
 
 You need Python 3.10 or newer.
