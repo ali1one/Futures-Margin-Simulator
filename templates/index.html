@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t.title }}</title>
+  <meta name="description" content="{{ t.description }}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232a78d6'/%3E%3Cpath d='M6 22l7-8 5 5 8-10' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main>
+  <header>
+    <nav class="languages" aria-label="Language">
+      <a href="?lang=en" data-lang="en"{% if lang == 'en' %} aria-current="true"{% endif %}>English</a>
+      <a href="?lang=fr" data-lang="fr"{% if lang == 'fr' %} aria-current="true"{% endif %}>Français</a>
+    </nav>
+    <h1>{{ t.title }}</h1>
+    <p class="lead">{{ t.lead }}</p>
+  </header>
+
+  <noscript><p class="notice">{{ t.noscript }}</p></noscript>
+
+  <details class="guide">
+    <summary>{{ t.guide_title }}</summary>
+    <ol>
+      {% for item in t.guide %}
+      <li>{{ item|safe }}</li>
+      {% endfor %}
+    </ol>
+  </details>
+
+  <details class="guide">
+    <summary>{{ t.settings_title }}</summary>
+    <p class="secondary">{{ t.settings_note }}</p>
+    <div class="settings-grid">
+      <div class="setting">
+        <span class="setting-label">{{ t.position_label }}</span>
+        <label class="radio"><input type="radio" name="position" value="long" checked> {{ t.long }}</label>
+        <label class="radio"><input type="radio" name="position" value="short"> {{ t.short }}</label>
+      </div>
+      <div class="setting">
+        <label for="s-volatility" class="setting-label">{{ t.setting_volatility }}</label>
+        <div class="slider-row"><input type="range" id="s-volatility" data-setting="volatility" step="0.5"><output id="o-volatility"></output></div>
+      </div>
+      <div class="setting">
+        <label for="s-rate_volatility" class="setting-label">{{ t.setting_rate_volatility }}</label>
+        <div class="slider-row"><input type="range" id="s-rate_volatility" data-setting="rate_volatility" step="0.25"><output id="o-rate_volatility"></output></div>
+      </div>
+      <div class="setting">
+        <label for="s-steps" class="setting-label">{{ t.setting_steps }}</label>
+        <div class="slider-row"><input type="range" id="s-steps" data-setting="steps" step="1"><output id="o-steps"></output></div>
+      </div>
+      <div class="setting">
+        <label for="s-start_margin" class="setting-label">{{ t.setting_start_margin }}</label>
+        <div class="slider-row"><input type="range" id="s-start_margin" data-setting="start_margin" step="5000"><output id="o-start_margin"></output></div>
+      </div>
+      <div class="setting">
+        <label for="s-maintenance_ratio" class="setting-label">{{ t.setting_maintenance_ratio }}</label>
+        <div class="slider-row"><input type="range" id="s-maintenance_ratio" data-setting="maintenance_ratio" step="5"><output id="o-maintenance_ratio"></output></div>
+      </div>
+    </div>
+  </details>
+
+  <section aria-labelledby="sim-title">
+    <h2 id="sim-title">{{ t.sim_title }}</h2>
+
+    <div class="corr">
+      <label for="corr">{{ t.corr_label }}</label>
+      <input type="range" id="corr" min="-1" max="1" step="0.1" value="1">
+      <output id="corr-out" for="corr"></output>
+    </div>
+
+    <div class="buttons">
+      <button type="button" data-action="up">{{ t.btn_up }}</button>
+      <button type="button" data-action="down">{{ t.btn_down }}</button>
+      <button type="button" data-action="random">{{ t.btn_random }}</button>
+      <button type="button" data-action="auto">{{ t.btn_auto }}</button>
+    </div>
+    <div class="buttons">
+      <button type="button" data-action="undo">{{ t.btn_undo }}</button>
+      <button type="button" data-action="reset">{{ t.btn_restart }}</button>
+      <button type="button" data-action="share">{{ t.btn_share }}</button>
+      <button type="button" data-action="csv">{{ t.btn_csv }}</button>
+      <button type="button" data-action="tour">{{ t.btn_tour }}</button>
+    </div>
+
+    <section id="tour" class="tour" hidden aria-live="polite">
+      <p class="tour-stage" id="tour-stage"></p>
+      <h3 id="tour-title"></h3>
+      <p id="tour-text"></p>
+      <p class="tour-question" id="tour-question"></p>
+      <div id="tour-options" class="buttons"></div>
+      <p id="tour-feedback" class="tour-feedback"></p>
+      <div class="buttons">
+        <button type="button" id="tour-next"></button>
+        <button type="button" id="tour-exit">{{ t.tour_exit }}</button>
+      </div>
+    </section>
+
+    <div class="tiles">
+      <div class="tile"><p class="tl">{{ t.tile_step }}</p><p class="tv" id="t-n">–</p></div>
+      <div class="tile"><p class="tl">{{ t.tile_price }}</p><p class="tv" id="t-f">–</p></div>
+      <div class="tile"><p class="tl">{{ t.tile_rate }}</p><p class="tv" id="t-r">–</p></div>
+      <div class="tile"><p class="tl">{{ t.tile_balance }}</p><p class="tv" id="t-b">–</p></div>
+    </div>
+
+    <div id="msg" class="msg" role="status" aria-live="polite"></div>
+
+    <div class="charts">
+      <figure>
+        <figcaption>{{ t.chart_flows }}</figcaption>
+        <div class="chart-box"><canvas id="c-flows" role="img" aria-label="{{ t.aria_flows }}"></canvas></div>
+      </figure>
+      <figure>
+        <figcaption>{{ t.chart_rates }}</figcaption>
+        <div class="chart-box"><canvas id="c-rates" role="img" aria-label="{{ t.aria_rates }}"></canvas></div>
+      </figure>
+      <figure>
+        <figcaption>{{ t.chart_balance }}</figcaption>
+        <div class="chart-box"><canvas id="c-balance" role="img" aria-label="{{ t.aria_balance }}"></canvas></div>
+      </figure>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ t.th_step }}</th><th>{{ t.th_index }}</th><th>{{ t.th_corr }}</th><th>{{ t.th_rate }}</th>
+            <th>{{ t.th_cash }}</th><th>{{ t.th_balance }}</th><th>{{ t.th_interest }}</th>
+          </tr>
+        </thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+
+    <h3>{{ t.compare_title }}</h3>
+    <div class="tiles tiles-3">
+      <div class="tile"><p class="tl">{{ t.box_future }}</p><p class="tv" id="r-fut">–</p></div>
+      <div class="tile"><p class="tl">{{ t.box_forward }}</p><p class="tv" id="r-fwd">–</p></div>
+      <div class="tile"><p class="tl">{{ t.box_gap }}</p><p class="tv" id="r-diff">–</p></div>
+    </div>
+    <p id="r-txt" class="secondary"></p>
+
+    <h3>{{ t.mc_title }}</h3>
+    <div class="buttons"><button type="button" data-action="mc">{{ t.mc_button }}</button></div>
+    <div id="mc" aria-live="polite"></div>
+
+    <p class="footnote">{{ t.footnote }}</p>
+  </section>
+</main>
+
+<script>
+  const T = {{ t|tojson }};
+  const LANG = {{ lang|tojson }};
+</script>
+<script src="{{ url_for('static', filename='vendor/chart.umd.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
